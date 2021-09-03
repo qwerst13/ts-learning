@@ -16,6 +16,7 @@ const employee1: ElevatedEmployee = {
     privileges: ['create-server'],
     startDate: new Date()
 }
+
 /* Mostly this code id same that one with interfaces */
 interface AdminInterface {
     name: string;
@@ -27,7 +28,7 @@ interface EmployeeInterface {
     startDate: Date;
 }
 
-interface  ElevatedEmployeeInterface extends Admin, Employee {
+interface ElevatedEmployeeInterface extends Admin, Employee {
 
 }
 
