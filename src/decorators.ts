@@ -30,8 +30,11 @@ class Person {
   }
 }
 
-function Log2() {
-
+function Log2(target: any, name: string, descriptor: PropertyDescriptor) {
+    console.log('Accessor decorator');
+    console.log(target);
+    console.log(name);
+    console.log(descriptor);
 }
 
 class Product {
@@ -56,3 +59,71 @@ class Product {
     }
 }
 
+interface ValidatorConfig {
+    [property: string]: {
+        [validatableProp: string]: string[]
+    }
+}
+
+const registeredValidators: ValidatorConfig = {};
+
+function Required(target: any, propName: string) {
+    registeredValidators[target.constructor.name] = {
+        [propName]: ['required']
+    }
+}
+
+function PositiveNumber(target: any, propName: string) {
+    registeredValidators[target.constructor.name] = {
+        [propName]: ['positive']
+    }
+}
+
+function validate(obj: any) {
+    const objectValidatorConfig = registeredValidators[obj.constructor.name];
+    if(!objectValidatorConfig) {
+        return true
+    }
+    for (const prop in objectValidatorConfig) {
+        for (const validator of objectValidatorConfig[prop]) {
+            switch (validator) {
+                case 'required': return !!obj[prop];
+                case 'positive': return obj[prop] > 0;
+            }
+        }
+    }
+    return true;
+}
+
+class Course {
+    @Required
+    title: string;
+    @PositiveNumber
+    price: number;
+
+    constructor(t: string, p: number) {
+        this.title = t;
+        this.price =p;
+    }
+}
+
+const courseForm = document.querySelector('form')!;
+
+courseForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const titleEl = document.getElementById('title') as HTMLInputElement;
+    const priceEl = document.getElementById('price') as HTMLInputElement;
+
+    const title = titleEl.value;
+    const price = +priceEl.value;
+
+    const createdCourse = new Course(title, price);
+
+    if (!validate(createdCourse)) {
+        alert('Wrong values');
+        return;
+    }
+    console.log(createdCourse)
+})
+
+let up: Uppercase<'string'> = 'STRING';
